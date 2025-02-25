@@ -10,6 +10,7 @@
   "license": "MIT",
   "description": "Solana wallet example",
   "dependencies": {
-    "@solana/web3.js": "^1.98.0"
+    "@solana/web3.js": "^1.98.0",
+    "base58-js": "^3.0.2"
   }
 }
