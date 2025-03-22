@@ -1,6 +1,6 @@
 {
-  "author": "LuizTools",
   "license": "MIT",  
+  "author": "LuizTools",
   "scripts": {
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"

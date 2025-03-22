@@ -1,5 +1,5 @@
 # Hello World Solana
-A simple Solana programa written in Rust with tests.
+A simple Solana program (Hello World) written in Rust with tests.
 
 ## How to Run
 
