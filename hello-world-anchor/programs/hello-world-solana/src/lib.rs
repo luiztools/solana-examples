@@ -9,6 +9,11 @@ pub mod hello_world_solana {
         ctx.accounts.hello_world_account.message = message;
         Ok(())
     }
+
+    pub fn update(ctx: Context<Update>, message: String) -> Result<()> {
+        ctx.accounts.hello_world_account.message = message;
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -18,6 +23,12 @@ pub struct Initialize<'info>{
     #[account(mut)]
     pub user: Signer<'info>,
     pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
+pub struct Update<'info>{
+    #[account(mut)]
+    pub hello_world_account: Account<'info, HelloWorldAccount>,
 }
 
 #[account]

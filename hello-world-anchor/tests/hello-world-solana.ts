@@ -9,9 +9,9 @@ describe("HelloWorldSolana Tests", () => {
 
   // dependências para os testes
   const program = anchor.workspace.HelloWorldSolana as Program<HelloWorldSolana>;
-  const helloWorldAccount = anchor.web3.Keypair.generate();
 
-  it("Hello World", async () => {
+  it("Initialize", async () => {
+    const helloWorldAccount = anchor.web3.Keypair.generate();
     const testMessage = "Hello World";
     let tx = await program.methods.initialize(testMessage)
       .accounts({
@@ -23,5 +23,23 @@ describe("HelloWorldSolana Tests", () => {
 
     const account = await program.account.helloWorldAccount.fetch(helloWorldAccount.publicKey);
     assert.ok(account.message === testMessage);
+  });
+
+  it("Update", async () => {
+    const helloWorldAccount = anchor.web3.Keypair.generate();
+    await program.methods.initialize("Hello World")
+      .accounts({
+        helloWorldAccount: helloWorldAccount.publicKey,
+        user: anchor.getProvider().publicKey
+      })
+      .signers([helloWorldAccount])
+      .rpc();
+
+    await program.methods.update("New Hello World")
+      .accounts({ helloWorldAccount: helloWorldAccount.publicKey })
+      .rpc();
+
+    const account = await program.account.helloWorldAccount.fetch(helloWorldAccount.publicKey);
+    assert.ok(account.message === "New Hello World");
   });
 });
