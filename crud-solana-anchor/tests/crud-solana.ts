@@ -8,23 +8,24 @@ describe("crud-solana", () => {
   anchor.setProvider(anchor.AnchorProvider.env());
   const program = anchor.workspace.CrudSolana as Program<CrudSolana>;
   let libraryAccount: anchor.web3.Keypair;
-  const signer = anchor.getProvider().publicKey;
+  const user = anchor.getProvider().publicKey;
 
   beforeEach(async () => {
     // Cria uma nova conta antes de cada teste
+    
     libraryAccount = anchor.web3.Keypair.generate();
 
     await program.methods
       .initialize()
-      .accounts({ library: libraryAccount.publicKey, signer })
+      .accounts({ library: libraryAccount.publicKey, user })
       .signers([libraryAccount])
       .rpc();
   });
 
   it("should add book", async () => {
     await program.methods
-      .addBook({ title: "Teste", author: "LuizTools", year: 2024 })
-      .accounts({ library: libraryAccount.publicKey, signer })
+      .addBook({ id: 0, title: "Teste", author: "LuizTools", year: 2024 })
+      .accounts({ library: libraryAccount.publicKey })
       .rpc();
 
     const library = await program.account.library.fetch(libraryAccount.publicKey);
@@ -33,14 +34,14 @@ describe("crud-solana", () => {
 
   it("should edit book", async () => {
     await program.methods
-      .addBook({ title: "Teste", author: "LuizTools", year: 2024 })
-      .accounts({ library: libraryAccount.publicKey, signer })
+      .addBook({ id: 0, title: "Teste", author: "LuizTools", year: 2024 })
+      .accounts({ library: libraryAccount.publicKey })
       .rpc();
 
     const newTitle = "Teste2";
     await program.methods
-      .editBook(1, { title: newTitle, author: "", year: 0 })
-      .accounts({ library: libraryAccount.publicKey, signer })
+      .editBook(1, { id: 0, title: newTitle, author: "", year: 0 })
+      .accounts({ library: libraryAccount.publicKey })
       .rpc();
 
     const library = await program.account.library.fetch(libraryAccount.publicKey);
@@ -53,8 +54,8 @@ describe("crud-solana", () => {
   it("shouldn't edit book (not found)", async () => {
     try {
       await program.methods
-        .editBook(999, { title: "Non-existent Book", author: "Nobody", year: 2025 })
-        .accounts({ library: libraryAccount.publicKey, signer })
+        .editBook(999, { id: 0, title: "Non-existent Book", author: "Nobody", year: 2025 })
+        .accounts({ library: libraryAccount.publicKey })
         .rpc();
 
       assert.fail("Expected an error but did not receive one");
@@ -65,13 +66,13 @@ describe("crud-solana", () => {
 
   it("should delete book", async () => {
     await program.methods
-      .addBook({ title: "Teste", author: "LuizTools", year: 2024 })
-      .accounts({ library: libraryAccount.publicKey, signer })
+      .addBook({ id: 0, title: "Teste", author: "LuizTools", year: 2024 })
+      .accounts({ library: libraryAccount.publicKey })
       .rpc();
 
     await program.methods
       .deleteBook(1)
-      .accounts({ library: libraryAccount.publicKey, signer })
+      .accounts({ library: libraryAccount.publicKey })
       .rpc();
 
     const library = await program.account.library.fetch(libraryAccount.publicKey);
@@ -82,7 +83,7 @@ describe("crud-solana", () => {
     try {
       await program.methods
         .deleteBook(999)
-        .accounts({ library: libraryAccount.publicKey, signer })
+        .accounts({ library: libraryAccount.publicKey })
         .rpc();
 
       assert.fail("Expected an error but did not receive one");

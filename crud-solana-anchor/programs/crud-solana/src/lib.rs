@@ -6,29 +6,29 @@ declare_id!("5CgpzDxZ2xUUvfjBJEAeyio2s3A7azsis8gWdZH8aSMH");
 pub mod crud_solana {
     use super::*;
 
-    pub fn initialize(ctx: Context<Initialize>) -> Result<()>{
+    pub fn initialize(ctx: Context<InitializeContext>) -> Result<()>{
         let library = &mut ctx.accounts.library;
         library.next_id = 0;
         library.books = Vec::new();
         Ok(())
     }
 
-    pub fn add_book(ctx: Context<BookDatabase>, book_data: BookData) -> Result<()> {
+    pub fn add_book(ctx: Context<LibraryContext>, book: Book) -> Result<()> {
         let library = &mut ctx.accounts.library;
         library.next_id += 1;
 
         let new_book = Book {
             id: library.next_id,
-            title: book_data.title,
-            author: book_data.author,
-            year: book_data.year
+            title: book.title,
+            author: book.author,
+            year: book.year
         };
 
         library.books.push(new_book);
         Ok(())
     }
 
-    pub fn edit_book(ctx: Context<BookDatabase>, id: u32, new_data: BookData) -> Result<()> {
+    pub fn edit_book(ctx: Context<LibraryContext>, id: u32, new_data: Book) -> Result<()> {
         let library = &mut ctx.accounts.library;
         if let Some(book) = library.books.iter_mut().find(|b| b.id == id) {
             if new_data.title != "" && book.title != new_data.title { book.title = new_data.title; }
@@ -39,7 +39,7 @@ pub mod crud_solana {
         Err(CustomError::BookNotFound.into())
     }
 
-    pub fn delete_book(ctx: Context<BookDatabase>, id: u32) -> Result<()> {
+    pub fn delete_book(ctx: Context<LibraryContext>, id: u32) -> Result<()> {
         if let Some(index) = ctx.accounts.library.books.iter().position(|b| b.id == id) {
             ctx.accounts.library.books.remove(index);
             return Ok(())
@@ -56,13 +56,6 @@ pub struct Book {
     pub year: u16,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize, Clone)]
-pub struct BookData {
-    pub title: String,
-    pub author: String,
-    pub year: u16,
-}
-
 #[account]
 pub struct Library {
     pub books: Vec<Book>,
@@ -70,20 +63,20 @@ pub struct Library {
 }
 
 #[derive(Accounts)]
-pub struct Initialize<'info> {
-    #[account(init, payer = signer, space = 8 + 4 + 4 + (50 * (4 + 32 + 32 + 2)))]
+pub struct InitializeContext<'info> {
+    #[account(init, payer = user, space = 8 + 4 + 4 + (50 * (4 + 32 + 32 + 2)))]
     pub library: Account<'info, Library>,
+
     #[account(mut)]
-    pub signer: Signer<'info>,
+    pub user: Signer<'info>,
+    
     pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
-pub struct BookDatabase<'info> {
+pub struct LibraryContext<'info> {
     #[account(mut)]
     pub library: Account<'info, Library>,
-    #[account(mut)]
-    pub signer: Signer<'info>,
 }
 
 #[error_code]
