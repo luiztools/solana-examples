@@ -24,18 +24,18 @@ pub struct Library {
 
 #[derive(Accounts)]
 pub struct InitializeContext<'info> {
-    #[account(init, payer = user, space = 8 + 4)]
+    #[account(init, payer = user, space = 8 + 4, seeds = [b"library"], bump)]
     pub library: Account<'info, Library>,
 
     #[account(mut)]
     pub user: Signer<'info>,
-    
+
     pub system_program: Program<'info, System>,
 }
 
 #[derive(Accounts)]
 pub struct AddBookContext<'info> {
-    #[account(mut)]
+    #[account(mut, seeds = [b"library"], bump)]
     pub library: Account<'info, Library>,
 
     #[account(
@@ -72,11 +72,34 @@ pub struct DeleteBookContext<'info> {
     pub authority: Signer<'info>,
 }
 
+#[derive(Accounts)]
+pub struct CloseLibraryContext<'info> {
+    #[account(
+        mut,
+        seeds = [b"library"],
+        bump,
+        close = user
+    )]
+    pub library: Account<'info, Library>,
+
+    #[account(mut)]
+    pub user: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct CloseBookContext<'info> {
+    #[account(mut, close = user)]
+    pub book: Account<'info, Book>,
+
+    #[account(mut)]
+    pub user: Signer<'info>,
+}
+
 #[program]
 pub mod pda_solana_anchor {
     use super::*;
 
-    pub fn initialize(ctx: Context<InitializeContext>) -> Result<()>{
+    pub fn initialize(ctx: Context<InitializeContext>) -> Result<()> {
         ctx.accounts.library.next_id = 1;
         Ok(())
     }
@@ -98,9 +121,15 @@ pub mod pda_solana_anchor {
     pub fn edit_book(ctx: Context<EditBookContext>, book: BookInput) -> Result<()> {
         let book_account = &mut ctx.accounts.book;
 
-        if book.title != "" && book_account.title != book.title {book_account.title = book.title;}
-        if book.author != "" && book_account.author != book.author {book_account.author = book.author;}
-        if book.year > 0 && book_account.year != book.year {book_account.year = book.year;}
+        if book.title != "" && book_account.title != book.title {
+            book_account.title = book.title;
+        }
+        if book.author != "" && book_account.author != book.author {
+            book_account.author = book.author;
+        }
+        if book.year > 0 && book_account.year != book.year {
+            book_account.year = book.year;
+        }
 
         Ok(())
     }
@@ -109,6 +138,14 @@ pub mod pda_solana_anchor {
         let book_account = &mut ctx.accounts.book;
         // send lamports back to the caller / authority instead of the library
         book_account.close(ctx.accounts.authority.to_account_info())?;
+        Ok(())
+    }
+
+    pub fn close_library(_ctx: Context<CloseLibraryContext>) -> Result<()> {
+        Ok(())
+    }
+
+    pub fn close_book(_ctx: Context<CloseBookContext>) -> Result<()> {
         Ok(())
     }
 }

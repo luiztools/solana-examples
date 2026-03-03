@@ -4,32 +4,51 @@ import { Program } from "@coral-xyz/anchor";
 import { PdaSolanaAnchor } from "../target/types/pda_solana_anchor";
 
 describe("pda-solana-anchor", () => {
-  // Configure the client to use the local cluster.
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
   const user = provider.wallet.publicKey;
 
   const program = anchor.workspace.PdaSolanaAnchor as Program<PdaSolanaAnchor>;
 
-  let libraryKp: anchor.web3.Keypair;
+  const [libraryPda] = anchor.web3.PublicKey.findProgramAddressSync(
+    [Buffer.from("library")],
+    program.programId
+  );
 
   beforeEach(async () => {
-    // Cria uma nova conta antes de cada teste
-    libraryKp = anchor.web3.Keypair.generate();
-
     await program.methods
       .initialize()
       .accounts({
-        library: libraryKp.publicKey,
+        library: libraryPda,
         user,
         systemProgram: anchor.web3.SystemProgram.programId
       })
-      .signers([libraryKp])
       .rpc();
   });
 
-  function getPda(libraryPubkey: anchor.web3.PublicKey, bookId: number) {
-     const [bookPda] = anchor.web3.PublicKey.findProgramAddressSync(
+  afterEach(async () => {
+    const books = await program.account.book.all();
+    for (const { publicKey } of books) {
+      await program.methods
+        .closeBook()
+        .accounts({
+          book: publicKey,
+          user,
+        })
+        .rpc();
+    }
+
+    await program.methods
+      .closeLibrary()
+      .accounts({
+        library: libraryPda,
+        user,
+      })
+      .rpc();
+  });
+
+  function getBookPda(libraryPubkey: anchor.web3.PublicKey, bookId: number) {
+    const [bookPda] = anchor.web3.PublicKey.findProgramAddressSync(
       [
         Buffer.from("book"),
         libraryPubkey.toBuffer(),
@@ -43,15 +62,15 @@ describe("pda-solana-anchor", () => {
   }
 
   async function addBook() {
-    const libraryAccount = await program.account.library.fetch(libraryKp.publicKey);
+    const libraryAccount = await program.account.library.fetch(libraryPda);
     const expectedId = libraryAccount.nextId;
 
-    const bookPda = getPda(libraryKp.publicKey, expectedId);
+    const bookPda = getBookPda(libraryPda, expectedId);
 
     await program.methods
       .addBook({ title: "Teste", author: "LuizTools", year: 2024 })
       .accounts({
-        library: libraryKp.publicKey,
+        library: libraryPda,
         book: bookPda,
         user,
         systemProgram: anchor.web3.SystemProgram.programId
@@ -62,7 +81,7 @@ describe("pda-solana-anchor", () => {
   it("should add book", async () => {
     await addBook();
 
-    const bookPda = getPda(libraryKp.publicKey, 1);
+    const bookPda = getBookPda(libraryPda, 1);
     const book = await program.account.book.fetch(bookPda);
 
     const books = await program.account.book.all();
@@ -72,7 +91,7 @@ describe("pda-solana-anchor", () => {
 
   it("shouldn't get the book (not found)", async () => {
     await addBook();
-    const bookPda = getPda(libraryKp.publicKey, 2);
+    const bookPda = getBookPda(libraryPda, 2);
 
     try {
       await program.account.book.fetch(bookPda);
@@ -85,7 +104,7 @@ describe("pda-solana-anchor", () => {
   it("should edit book title", async () => {
     await addBook();
 
-    const bookPda = getPda(libraryKp.publicKey, 1);
+    const bookPda = getBookPda(libraryPda, 1);
     const bookBefore = await program.account.book.fetch(bookPda);
 
     await program.methods
@@ -102,7 +121,7 @@ describe("pda-solana-anchor", () => {
   it("should delete book and refund lamports to authority", async () => {
     await addBook();
 
-    const bookPda = getPda(libraryKp.publicKey, 1);
+    const bookPda = getBookPda(libraryPda, 1);
     const beforeBal = await provider.connection.getBalance(user);
 
     await program.methods
