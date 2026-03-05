@@ -1,0 +1,4 @@
+[toolchain]
+channel = "stable"  # use latest stable to ensure support for edition2024
+components = ["rustfmt","clippy"]
+profile = "minimal"
