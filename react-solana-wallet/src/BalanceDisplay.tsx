@@ -9,18 +9,21 @@ function BalanceDisplay() {
 
     useEffect(() => {
         const updateBalance = async () => {
-            if (!connection || !publicKey) return;
+            if (!connection || !publicKey) {
+                console.error("Wallet not connected or connection unavailable");
+                return;
+            }
 
             try {
                 connection.onAccountChange(
-                    publicKey,
+                    publicKey!,
                     (updatedAccountInfo) => {
                         setBalance(updatedAccountInfo.lamports / LAMPORTS_PER_SOL);
                     },
                     "confirmed",
                 );
 
-                const accountInfo = await connection.getAccountInfo(publicKey);
+                const accountInfo = await connection.getAccountInfo(publicKey!);
 
                 if (accountInfo) {
                     setBalance(accountInfo.lamports / LAMPORTS_PER_SOL);

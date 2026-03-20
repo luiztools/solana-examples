@@ -6,7 +6,7 @@ Simple examples of ReactJS app connecting to Solana blockchain using browser wal
 1. git clone the project
 2. cd react-solana-wallet
 3. npm install
-4. npm start
+4. npm run dev
 
 ## Referências
 

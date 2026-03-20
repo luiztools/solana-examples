@@ -1,15 +1,12 @@
 import { useState } from "react";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { PublicKey, Transaction, LAMPORTS_PER_SOL, SystemProgram } from "@solana/web3.js";
-import * as buffer from "buffer";
 
 function SendForm() {
-
-    window.Buffer = buffer.Buffer;
     const { publicKey, sendTransaction } = useWallet();
     const { connection } = useConnection();
     const [value, setValue] = useState("0.05");
-    const [wallet, setWallet] = useState("d9zy8p3VL5Q3yQ9Zt8xCtbuwivcVx9EcjN1G9izP88Z");
+    const [wallet, setWallet] = useState("84DAeL8XrucYZuNX5m5y8h5tVDUPgQkYVcqGk4F43VGk");
 
     async function sendSol() {
         if (!publicKey) {
@@ -40,23 +37,21 @@ function SendForm() {
     return (
         <>
             {
-                publicKey
-                    ? (
-                        <>
-                            <p>Wallet:</p>
-                            <div>
-                                <input type="text" style={{ lineHeight: "40px", width: 260 }} value={wallet} onChange={(evt) => setWallet(evt.target.value)}></input>
-                            </div>
-                            <div style={{ display: "flex", marginTop: 10 }}>
-                                <input type="number" style={{ lineHeight: "40px" }} value={value} onChange={(evt) => setValue(evt.target.value)} />
-                                <button className="wallet-adapter-button-trigger wallet-adapter-button" onClick={sendSol}>Send SOL</button>
-                            </div>
-                        </>
-                    )
-                    : <></>
+                publicKey ? 
+                <>
+                    <p>Wallet:</p>
+                    <div>
+                        <input type="text" style={{ lineHeight: "40px", width: 260 }} value={wallet} onChange={(evt) => setWallet(evt.target.value)}></input>
+                    </div>
+                    <div style={{ display: "flex", marginTop: 10 }}>
+                        <input type="number" style={{ lineHeight: "40px" }} value={value} onChange={(evt) => setValue(evt.target.value)} />
+                        <button className="wallet-adapter-button-trigger wallet-adapter-button" onClick={sendSol}>Send SOL</button>
+                    </div>
+                </>
+                : <></>
             }
         </>
     )
-
 }
+
 export default SendForm;
