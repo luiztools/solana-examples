@@ -1,0 +1,424 @@
+{
+  "address": "4CQ8Qq4fXJZYg6CfF3Qg7vtbReTsMAdNvo5LFFTmhfiV",
+  "metadata": {
+    "name": "solana_crud_anchor",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "add_book",
+      "discriminator": [
+        181,
+        117,
+        249,
+        173,
+        108,
+        163,
+        209,
+        238
+      ],
+      "accounts": [
+        {
+          "name": "library",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  98,
+                  114,
+                  97,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "book",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  111,
+                  107
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "library"
+              },
+              {
+                "kind": "account",
+                "path": "library.next_id",
+                "account": "Library"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "book",
+          "type": {
+            "defined": {
+              "name": "BookInput"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "delete_book",
+      "discriminator": [
+        244,
+        77,
+        255,
+        110,
+        20,
+        249,
+        135,
+        18
+      ],
+      "accounts": [
+        {
+          "name": "library",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  98,
+                  114,
+                  97,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "book",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  111,
+                  107
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "library"
+              },
+              {
+                "kind": "account",
+                "path": "book.id",
+                "account": "Book"
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "library"
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "delete_library",
+      "discriminator": [
+        195,
+        231,
+        53,
+        120,
+        209,
+        241,
+        4,
+        113
+      ],
+      "accounts": [
+        {
+          "name": "library",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  98,
+                  114,
+                  97,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "authority",
+          "writable": true,
+          "signer": true,
+          "relations": [
+            "library"
+          ]
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "edit_book",
+      "discriminator": [
+        235,
+        55,
+        22,
+        200,
+        104,
+        145,
+        193,
+        159
+      ],
+      "accounts": [
+        {
+          "name": "library",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  98,
+                  114,
+                  97,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "book",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  98,
+                  111,
+                  111,
+                  107
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "library"
+              },
+              {
+                "kind": "arg",
+                "path": "id"
+              }
+            ]
+          }
+        }
+      ],
+      "args": [
+        {
+          "name": "id",
+          "type": "u32"
+        },
+        {
+          "name": "new_data",
+          "type": {
+            "defined": {
+              "name": "BookInput"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "initialize",
+      "discriminator": [
+        175,
+        175,
+        109,
+        31,
+        13,
+        152,
+        155,
+        237
+      ],
+      "accounts": [
+        {
+          "name": "library",
+          "docs": [
+            "Space:\n        8 for context descriptor\n        4 for next_id\n        32 for authority"
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  98,
+                  114,
+                  97,
+                  114,
+                  121
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Book",
+      "discriminator": [
+        121,
+        34,
+        121,
+        35,
+        91,
+        62,
+        85,
+        222
+      ]
+    },
+    {
+      "name": "Library",
+      "discriminator": [
+        149,
+        0,
+        245,
+        53,
+        237,
+        139,
+        101,
+        192
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "BookNotFound",
+      "msg": "Book not found"
+    }
+  ],
+  "types": [
+    {
+      "name": "Book",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "id",
+            "type": "u32"
+          },
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "author",
+            "type": "string"
+          },
+          {
+            "name": "year",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BookInput",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "title",
+            "type": "string"
+          },
+          {
+            "name": "author",
+            "type": "string"
+          },
+          {
+            "name": "year",
+            "type": "u16"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Library",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "next_id",
+            "type": "u32"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          }
+        ]
+      }
+    }
+  ]
+}
