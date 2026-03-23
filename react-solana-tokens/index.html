@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>react-solana-wallet</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module">
+      // Setup Buffer polyfill BEFORE importing app modules
+      (async () => {
+        const { Buffer } = await import('buffer');
+        globalThis.Buffer = Buffer;
+        if (typeof window !== 'undefined') {
+          window.Buffer = Buffer;
+        }
+        // Now load the main app
+        await import('./src/main.tsx');
+      })();
+    </script>
+  </body>
+</html>
