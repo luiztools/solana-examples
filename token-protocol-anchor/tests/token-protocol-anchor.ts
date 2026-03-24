@@ -2,7 +2,7 @@ import * as anchor from "@coral-xyz/anchor";
 import { Program } from "@coral-xyz/anchor";
 import assert from "assert";
 import {
-  TOKEN_PROGRAM_ID,
+  TOKEN_2022_PROGRAM_ID,
   createMint,
   getAssociatedTokenAddress,
   createAssociatedTokenAccount,
@@ -11,8 +11,6 @@ import {
 import { TokenProtocolAnchor } from "../target/types/token_protocol_anchor";
 
 describe("token-protocol-anchor", () => {
-  anchor.setProvider(anchor.AnchorProvider.env());
-
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
   const user = provider.wallet.publicKey;
@@ -30,31 +28,39 @@ describe("token-protocol-anchor", () => {
       program.programId
     );
 
-    // create mint and give user some tokens
+    // create Token2022 mint and give user some tokens
     mint = await createMint(
       provider.connection,
       provider.wallet.payer,
       provider.wallet.publicKey,
       null,
-      9 // decimals
+      9, // decimals
+      undefined,
+      undefined,
+      TOKEN_2022_PROGRAM_ID
     );
 
     await createAssociatedTokenAccount(
       provider.connection,
       provider.wallet.payer,
       mint,
-      user
+      user,
+      undefined,
+      TOKEN_2022_PROGRAM_ID
     );
 
     // mint some tokens to user account
-    userTokenAccount = await getAssociatedTokenAddress(mint, user);
+    userTokenAccount = await getAssociatedTokenAddress(mint, user, false, TOKEN_2022_PROGRAM_ID);
     await mintTo(
       provider.connection,
       provider.wallet.payer,
       mint,
       userTokenAccount,
       provider.wallet.publicKey,
-      10_000_000_000 // 10 tokens with decimals 9
+      10_000_000_000, // 10 tokens with decimals 9
+      undefined,
+      undefined,
+      TOKEN_2022_PROGRAM_ID
     );
   });
 
@@ -72,7 +78,7 @@ describe("token-protocol-anchor", () => {
         userTokenAccount,
         vaultTokenAccount: vaultTokenPda,
         user,
-        tokenProgram: TOKEN_PROGRAM_ID,
+        tokenProgram: TOKEN_2022_PROGRAM_ID,
         systemProgram: anchor.web3.SystemProgram.programId,
         rent: anchor.web3.SYSVAR_RENT_PUBKEY,
       })
@@ -122,7 +128,7 @@ describe("token-protocol-anchor", () => {
           vaultTokenAccount: vaultTokenPda,
           userTokenAccount,
           user,
-          tokenProgram: TOKEN_PROGRAM_ID,
+          tokenProgram: TOKEN_2022_PROGRAM_ID,
         })
         .rpc();
 
@@ -150,7 +156,7 @@ describe("token-protocol-anchor", () => {
             vaultTokenAccount: vaultTokenPda,
             userTokenAccount,
             user,
-            tokenProgram: TOKEN_PROGRAM_ID,
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
           })
           .rpc();
 
@@ -180,7 +186,7 @@ describe("token-protocol-anchor", () => {
             vaultTokenAccount: vaultTokenPda,
             userTokenAccount,
             user: newUser.publicKey,
-            tokenProgram: TOKEN_PROGRAM_ID,
+            tokenProgram: TOKEN_2022_PROGRAM_ID,
           })
           .signers([newUser])
           .rpc();
